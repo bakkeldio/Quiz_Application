@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
         data = new ArrayList<DataModel>();
         for (int i=0; i<MyData.categories.length; i++){
-            data.add(new DataModel(MyData.categories[i], MyData.drawableArray[i], MyData.id[i]));
+            data.add(new DataModel(MyData.categories[i], MyData.id[i],MyData.drawableArray[i]));
         }
         adapter = new CustomAdapter(data);
         recyclerView.setAdapter(adapter);
