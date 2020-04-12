@@ -8,16 +8,11 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
-
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
@@ -41,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         navigationView = findViewById(R.id.navigationView);
         toolbar = findViewById(R.id.toolbar);
 
-        onClickListener = new MyOnClickListener(this);
+        //onClickListener = new MyOnClickListener(this);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -51,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         setupDrawerContent(navigationView);
         //recyclerView
 
+        /*
         recyclerView = findViewById(R.id.my_recycler_view);
         recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this);
@@ -64,8 +60,11 @@ public class MainActivity extends AppCompatActivity {
         adapter = new CustomAdapter(data);
         recyclerView.setAdapter(adapter);
 
+         */
+
     }
-    private static class MyOnClickListener implements View.OnClickListener{
+    /*
+    static class MyOnClickListener implements View.OnClickListener{
         private final Context context;
         MyOnClickListener(Context context){
             this.context = context;
@@ -94,6 +93,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+     */
 
 
 
@@ -129,6 +130,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.Rank:
                 fragment = new RankFragment();
+                break;
+            case R.id.Quizzes:
+                fragment = new Quizzes();
                 break;
 
         }

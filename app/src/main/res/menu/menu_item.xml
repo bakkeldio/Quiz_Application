@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/Profile"
-        android:title="Profile"
+        android:title="Edit Profile"
         />
     <item
         android:id="@+id/aboutUs"
@@ -14,11 +14,15 @@
         android:id="@+id/Rank"
         android:title="Ranking"
         />
+    <item
+        android:id="@+id/Quizzes"
+        android:title="Quizzes"/>
 
     <item
         android:id="@+id/logout"
         android:title="Logout"
         />
+
 
 
 
