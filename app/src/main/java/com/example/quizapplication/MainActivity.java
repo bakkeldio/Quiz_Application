@@ -14,6 +14,8 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 
@@ -28,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
     static View.OnClickListener onClickListener;
     RecyclerView.LayoutManager layoutManager;
     private static ArrayList<DataModel> data;
+    static FirebaseDatabase database;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         toggle.syncState();
 
         setupDrawerContent(navigationView);
+
         //recyclerView
 
         /*

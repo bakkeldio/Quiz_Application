@@ -92,6 +92,18 @@
             app:layout_constraintTop_toBottomOf="@+id/emailText"
             android:autofillHints="" />
 
+        <Button
+            android:id="@+id/updateButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="161dp"
+            android:layout_marginLeft="161dp"
+            android:layout_marginTop="67dp"
+            android:onClick="updateUserDetails"
+            android:text="Update"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/phoneText" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>
