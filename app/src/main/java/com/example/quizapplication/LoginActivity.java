@@ -29,16 +29,18 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         login = findViewById(R.id.login);
         email = findViewById(R.id.email);
-        password = findViewById(R.id.passwordText);
+        password = findViewById(R.id.password);
         progressBar = findViewById(R.id.progressBar);
-
+        auth = FirebaseAuth.getInstance();
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                progressBar.setVisibility(View.VISIBLE);
                 auth.signInWithEmailAndPassword(email.getText().toString(),
                         password.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        progressBar.setVisibility(View.GONE);
                         if (task.isSuccessful()){
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         }

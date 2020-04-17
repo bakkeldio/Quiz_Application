@@ -2,16 +2,13 @@ package com.example.quizapplication;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.arch.core.executor.DefaultTaskExecutor;
 import androidx.fragment.app.Fragment;
-
 
 import android.provider.MediaStore;
 import android.util.Log;
@@ -23,8 +20,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.util.ArrayUtils;
-import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -35,6 +33,8 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.InputStream;
 
+import static androidx.constraintlayout.widget.Constraints.TAG;
+
 
 public class ProfileFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
@@ -42,13 +42,17 @@ public class ProfileFragment extends Fragment {
 
     // TODO: Rename and change types of parameters
     private AppUser user;
-    private FirebaseDatabase database;
+    private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference users;
+    private DatabaseReference email;
+    private DatabaseReference username;
+    private DatabaseReference telephoneNumber;
     private String id;
+    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();;
     private Uri imageURI;
     private ImageView avatar;
     private StorageReference storageRef;
-
+    private FirebaseUser currentUser = firebaseAuth.getCurrentUser();
 
     private EditText editUserName;
     private EditText editEmail;
@@ -86,6 +90,43 @@ public class ProfileFragment extends Fragment {
         editPhone = view.findViewById(R.id.phoneText);
         Button changeImage = view.findViewById(R.id.changeImage);
         avatar = view.findViewById(R.id.photoImageView);
+        email = database.getReference("users").child(currentUser.getUid()).child("email");
+        email.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                editEmail.setText(dataSnapshot.getValue(String.class));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.w(TAG, "onCanceled", databaseError.toException());
+            }
+        });
+        username = database.getReference("users").child(currentUser.getUid()).child("username");
+        username.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                editUserName.setText(dataSnapshot.getValue(String.class));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.w(TAG, "onCanceled", databaseError.toException());
+                }
+        });
+        telephoneNumber = database.getReference("users").child(currentUser.getUid()).child("phoneNumber");
+        telephoneNumber.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                editPhone.setText(dataSnapshot.getValue(String.class));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.w(TAG, "onCanceled", databaseError.toException());
+            }
+        });
+
         changeImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,38 +138,14 @@ public class ProfileFragment extends Fragment {
         update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                database = FirebaseDatabase.getInstance();
                 users = database.getReference("users");
                 String username = editUserName.getText().toString().trim();
-                String email = editEmail.getText().toString().trim();
+                String email = currentUser.getEmail();
                 String phoneNumber = editPhone.getText().toString().trim();
+                if (currentUser != null){
+                    id = currentUser.getUid();
+                }
                 //users.child(id).setValue(user);
-                users.addChildEventListener(new ChildEventListener() {
-                    @Override
-                    public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                        id = s;
-                    }
-
-                    @Override
-                    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                    }
-
-                    @Override
-                    public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-                    }
-
-                    @Override
-                    public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
                 user = new AppUser(id,username, email,phoneNumber);
                 //assert id != null;
 
