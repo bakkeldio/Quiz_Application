@@ -8,11 +8,13 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -28,9 +30,11 @@ public class MainActivity extends AppCompatActivity {
     ActionBarDrawerToggle toggle;
     private static RecyclerView recyclerView;
     static View.OnClickListener onClickListener;
-    RecyclerView.LayoutManager layoutManager;
-    private static ArrayList<DataModel> data;
-    static FirebaseDatabase database;
+
+    FragmentTransaction fragmentTransaction;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,68 +44,21 @@ public class MainActivity extends AppCompatActivity {
         navigationView = findViewById(R.id.navigationView);
         toolbar = findViewById(R.id.toolbar);
 
-        //onClickListener = new MyOnClickListener(this);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
+        Quizzes quizzes = new Quizzes();
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.content_frame, quizzes).commit();
         setupDrawerContent(navigationView);
 
-        //recyclerView
 
-        /*
-        recyclerView = findViewById(R.id.my_recycler_view);
-        recyclerView.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-
-        data = new ArrayList<DataModel>();
-        for (int i=0; i<MyData.categories.length; i++){
-            data.add(new DataModel(MyData.categories[i], MyData.id[i],MyData.drawableArray[i]));
-        }
-        adapter = new CustomAdapter(data);
-        recyclerView.setAdapter(adapter);
-
-         */
+        //Profile Fragment
 
     }
-    /*
-    static class MyOnClickListener implements View.OnClickListener{
-        private final Context context;
-        MyOnClickListener(Context context){
-            this.context = context;
-        }
-
-        @Override
-        public void onClick(View v) {
-            removeCard(v);
-        }
-        private void removeCard(View view){
-            int selectedItemPosition = recyclerView.getChildAdapterPosition(view);
-            RecyclerView.ViewHolder viewHolder
-                    = recyclerView.findViewHolderForAdapterPosition(selectedItemPosition);
-            assert viewHolder != null;
-            TextView textViewName
-                    =  viewHolder.itemView.findViewById(R.id.textViewName);
-            String selectedName = (String) textViewName.getText();
-            int selectedItemId = -1;
-            for (int i = 0; i < MyData.categories.length; i++) {
-                if (selectedName.equals(MyData.categories[i])) {
-                    selectedItemId = MyData.id[i];
-                }
-            }
-            data.remove(selectedItemPosition);
-            adapter.notifyItemRemoved(selectedItemPosition);
-        }
-
-    }
-
-     */
-
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
