@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.arch.core.executor.DefaultTaskExecutor;
 import androidx.fragment.app.Fragment;
-
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +19,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -30,9 +32,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
-import java.io.InputStream;
 
+import static android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
 
@@ -43,6 +46,7 @@ public class ProfileFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private AppUser user;
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
+
     private DatabaseReference users;
     private DatabaseReference email;
     private DatabaseReference username;
@@ -51,7 +55,6 @@ public class ProfileFragment extends Fragment {
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();;
     private Uri imageURI;
     private ImageView avatar;
-    private StorageReference storageRef;
     private FirebaseUser currentUser = firebaseAuth.getCurrentUser();
 
     private EditText editUserName;
@@ -60,13 +63,12 @@ public class ProfileFragment extends Fragment {
     private static int PICK_IMAGE = 100;
 
     public ProfileFragment() {
-        // Required empty public constructor
+
     }
     private void openGallery() {
         Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
         startActivityForResult(gallery, PICK_IMAGE);
 
-         storageRef =FirebaseStorage.getInstance().getReference();
     }
 
     @Override
@@ -90,6 +92,10 @@ public class ProfileFragment extends Fragment {
         editPhone = view.findViewById(R.id.phoneText);
         Button changeImage = view.findViewById(R.id.changeImage);
         avatar = view.findViewById(R.id.photoImageView);
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("images/" + currentUser.getUid());
+        Glide.with(this)  // this
+                .load(storageReference)
+                .into(avatar);
         email = database.getReference("users").child(currentUser.getUid()).child("email");
         email.addValueEventListener(new ValueEventListener() {
             @Override
@@ -127,6 +133,7 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+
         changeImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -145,9 +152,8 @@ public class ProfileFragment extends Fragment {
                 if (currentUser != null){
                     id = currentUser.getUid();
                 }
-                //users.child(id).setValue(user);
+
                 user = new AppUser(id,username, email,phoneNumber);
-                //assert id != null;
 
                 database = FirebaseDatabase.getInstance();
                 users = database.getReference();
@@ -165,12 +171,34 @@ public class ProfileFragment extends Fragment {
                     }
                 });
 
+                uploadImage();
+
+
 
                 Toast.makeText(getContext(), "User updated!", Toast.LENGTH_SHORT).show();
             }
 
         });
 
+    }
+
+    //Uploading Image
+    public void uploadImage() {
+
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference().child("images/" + currentUser.getUid());
+        storageRef.putFile(imageURI).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Toast.makeText(getContext() ,"Image Uploaded!", Toast.LENGTH_LONG).show();
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getContext(), "Failed "+e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
