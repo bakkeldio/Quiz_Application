@@ -1,4 +1,5 @@
-package com.example.quizapplication;
+package com.example.quizapplication.fragments;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -9,11 +10,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+
+import com.example.quizapplication.CustomAdapter;
+import com.example.quizapplication.MainActivity;
+import com.example.quizapplication.model.DataModel;
+import com.example.quizapplication.R;
+import com.example.quizapplication.model.Questions;
 
 import java.util.ArrayList;
 
-public class Quizzes extends Fragment {
+public class Quizzes extends Fragment implements View.OnClickListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -24,8 +30,8 @@ public class Quizzes extends Fragment {
     private String mParam2;
 
     private static RecyclerView recyclerView;
-    static View.OnClickListener onClickListener;
-    RecyclerView.LayoutManager layoutManager;
+    private RecyclerView.LayoutManager layoutManager;
+    View.OnClickListener onClickListener;
     private static ArrayList<DataModel> data;
     private static RecyclerView.Adapter adapter;
 
@@ -52,35 +58,21 @@ public class Quizzes extends Fragment {
         }
 
     }
-    private static class MyOnClickListener implements View.OnClickListener{
-        private final Quizzes context;
-        MyOnClickListener(Quizzes context){
-            this.context = context;
-        }
 
-        @Override
-        public void onClick(View v) {
-            removeCard(v);
-        }
-        private void removeCard(View view){
+    @Override
+    public void onClick(View v) {
+        startTest(v);
+    }
+
+        private void startTest(View view){
             int selectedItemPosition = recyclerView.getChildAdapterPosition(view);
             RecyclerView.ViewHolder viewHolder
                     = recyclerView.findViewHolderForAdapterPosition(selectedItemPosition);
-            assert viewHolder != null;
-            TextView textViewName
-                    =  viewHolder.itemView.findViewById(R.id.textViewName);
-            String selectedName = (String) textViewName.getText();
-            int selectedItemId = -1;
-            for (int i = 0; i < MyData.categories.length; i++) {
-                if (selectedName.equals(MyData.categories[i])) {
-                    selectedItemId = MyData.id[i];
-                }
-            }
-            data.remove(selectedItemPosition);
-            adapter.notifyItemRemoved(selectedItemPosition);
+            Intent intent = new Intent(getContext(), Questions.class);
+            startActivity(intent);
         }
 
-    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -88,9 +80,9 @@ public class Quizzes extends Fragment {
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_quizzes, container, false);
-        onClickListener = new MyOnClickListener(this);
         recyclerView = view.findViewById(R.id.my_recycler_view);
                 recyclerView.setHasFixedSize(true);
+
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -98,6 +90,7 @@ public class Quizzes extends Fragment {
         data = new ArrayList<DataModel>();
         for (int i=0; i<MyData.categories.length; i++){
             data.add(new DataModel(MyData.categories[i], MyData.id[i],MyData.drawableArray[i]));
+
         }
         adapter = new CustomAdapter(data);
         recyclerView.setAdapter(adapter);

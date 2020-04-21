@@ -1,4 +1,4 @@
-package com.example.quizapplication;
+package com.example.quizapplication.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -7,7 +7,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.arch.core.executor.DefaultTaskExecutor;
 import androidx.fragment.app.Fragment;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -20,8 +19,11 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.example.quizapplication.model.AppUser;
+import com.example.quizapplication.R;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -35,7 +37,6 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 
-import static android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
 
@@ -48,15 +49,12 @@ public class ProfileFragment extends Fragment {
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
 
     private DatabaseReference users;
-    private DatabaseReference email;
-    private DatabaseReference username;
-    private DatabaseReference telephoneNumber;
     private String id;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();;
     private Uri imageURI;
-    private ImageView avatar;
+    static Uri downloadUri;
+    public static ImageView avatar;
     private FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-
     private EditText editUserName;
     private EditText editEmail;
     private EditText editPhone;
@@ -96,7 +94,7 @@ public class ProfileFragment extends Fragment {
         Glide.with(this)  // this
                 .load(storageReference)
                 .into(avatar);
-        email = database.getReference("users").child(currentUser.getUid()).child("email");
+        DatabaseReference email = database.getReference("users").child(currentUser.getUid()).child("email");
         email.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -108,7 +106,7 @@ public class ProfileFragment extends Fragment {
                 Log.w(TAG, "onCanceled", databaseError.toException());
             }
         });
-        username = database.getReference("users").child(currentUser.getUid()).child("username");
+        DatabaseReference username = database.getReference("users").child(currentUser.getUid()).child("username");
         username.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -120,7 +118,7 @@ public class ProfileFragment extends Fragment {
                 Log.w(TAG, "onCanceled", databaseError.toException());
                 }
         });
-        telephoneNumber = database.getReference("users").child(currentUser.getUid()).child("phoneNumber");
+        DatabaseReference telephoneNumber = database.getReference("users").child(currentUser.getUid()).child("phoneNumber");
         telephoneNumber.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -185,20 +183,26 @@ public class ProfileFragment extends Fragment {
     //Uploading Image
     public void uploadImage() {
 
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference().child("images/" + currentUser.getUid());
-        storageRef.putFile(imageURI).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+        final FirebaseStorage storage = FirebaseStorage.getInstance();
+        final StorageReference storageRef = storage.getReference().child("images/" + currentUser.getUid());
+        UploadTask task = storageRef.putFile(imageURI);
+
+        Task<Uri> uriTask = task.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
             @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Toast.makeText(getContext() ,"Image Uploaded!", Toast.LENGTH_LONG).show();
+            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                if (!task.isSuccessful()){
+                    throw task.getException();
+                }
+                return storageRef.getDownloadUrl();
             }
-        })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getContext(), "Failed "+e.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                });
+        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+            @Override
+            public void onComplete(@NonNull Task<Uri> task) {
+                if (task.isSuccessful()){
+                    downloadUri = task.getResult();
+                }
+            }
+        });
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

@@ -36,7 +36,6 @@
         android:id="@+id/navigationView"
         app:menu="@menu/menu_item"
         android:layout_gravity="start"
-        app:headerLayout="@layout/header"
         android:background="@color/c3"
         app:itemTextColor="#fff"/>
 

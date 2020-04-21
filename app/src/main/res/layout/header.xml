@@ -17,7 +17,7 @@
         android:id="@+id/photoImageView"
         android:layout_height="90dp"
         android:layout_width="90dp"
-        android:src="@drawable/altynai"
+        android:background="@color/c2"
         android:elevation="6dp"
         app:civ_border_color="@color/c1"
         android:layout_marginTop="20dp"

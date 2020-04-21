@@ -14,26 +14,28 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.example.quizapplication.fragments.AboutQuizFragment;
+import com.example.quizapplication.fragments.Logout;
+import com.example.quizapplication.fragments.ProfileFragment;
+import com.example.quizapplication.fragments.Quizzes;
+import com.example.quizapplication.fragments.RankFragment;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
-    private static RecyclerView.Adapter adapter;
     Toolbar toolbar;
     ActionBarDrawerToggle toggle;
-    private static RecyclerView recyclerView;
-    static View.OnClickListener onClickListener;
-
-    FragmentTransaction fragmentTransaction;
-
-
+    public static View.OnClickListener onClickListener;
 
 
     @Override
@@ -55,6 +57,13 @@ public class MainActivity extends AppCompatActivity {
                 .add(R.id.content_frame, quizzes).commit();
         setupDrawerContent(navigationView);
 
+        View view = navigationView.inflateHeaderView(R.layout.header);
+        ImageView imageView1 = view.findViewById(R.id.photoImageView);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        StorageReference storageReference  = FirebaseStorage.getInstance().getReference().child("images/"+user.getUid());
+        Glide.with(this)
+                .load(storageReference)
+                .into(imageView1);
 
         //Profile Fragment
 
@@ -78,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+
     }
 
 
@@ -95,6 +105,10 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.Quizzes:
                 fragment = new Quizzes();
+                break;
+            case R.id.yesButton:
+                fragment = new Logout();
+
                 break;
 
         }

@@ -1,4 +1,4 @@
-package com.example.quizapplication;
+package com.example.quizapplication.model;
 
 public class DataModel {
     private String name;

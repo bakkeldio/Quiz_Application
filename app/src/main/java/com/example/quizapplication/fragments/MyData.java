@@ -1,4 +1,6 @@
-package com.example.quizapplication;
+package com.example.quizapplication.fragments;
+
+import com.example.quizapplication.R;
 
 public class MyData {
         static String[] categories = {"Most Popular", "Animals", "Arts", "Business", "Current Events", "Food & Drink","Geography", "History"};

@@ -19,7 +19,7 @@
         android:title="Quizzes"/>
 
     <item
-        android:id="@+id/logout"
+        android:id="@+id/yesButton"
         android:title="Logout"
         />
 
