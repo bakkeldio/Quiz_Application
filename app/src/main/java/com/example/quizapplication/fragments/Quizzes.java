@@ -2,6 +2,8 @@ package com.example.quizapplication.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -12,14 +14,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.quizapplication.CustomAdapter;
-import com.example.quizapplication.MainActivity;
+import com.example.quizapplication.TestActivity;
 import com.example.quizapplication.model.DataModel;
 import com.example.quizapplication.R;
-import com.example.quizapplication.model.Questions;
 
 import java.util.ArrayList;
 
-public class Quizzes extends Fragment implements View.OnClickListener{
+public class Quizzes extends Fragment implements CustomAdapter.OnItemListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -31,7 +32,7 @@ public class Quizzes extends Fragment implements View.OnClickListener{
 
     private static RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
-    View.OnClickListener onClickListener;
+
     private static ArrayList<DataModel> data;
     private static RecyclerView.Adapter adapter;
 
@@ -60,19 +61,10 @@ public class Quizzes extends Fragment implements View.OnClickListener{
     }
 
     @Override
-    public void onClick(View v) {
-        startTest(v);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
     }
-
-        private void startTest(View view){
-            int selectedItemPosition = recyclerView.getChildAdapterPosition(view);
-            RecyclerView.ViewHolder viewHolder
-                    = recyclerView.findViewHolderForAdapterPosition(selectedItemPosition);
-            Intent intent = new Intent(getContext(), Questions.class);
-            startActivity(intent);
-        }
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -92,9 +84,17 @@ public class Quizzes extends Fragment implements View.OnClickListener{
             data.add(new DataModel(MyData.categories[i], MyData.id[i],MyData.drawableArray[i]));
 
         }
-        adapter = new CustomAdapter(data);
+        adapter = new CustomAdapter(data, this);
         recyclerView.setAdapter(adapter);
         recyclerView = view.findViewById(R.id.my_recycler_view);
         return view;
+    }
+
+    @Override
+    public void onItemClick(int position) {
+
+        Intent intent = new Intent(getContext(), TestActivity.class);
+        intent.putExtra("Category", data.get(position).getName());
+        startActivity(intent);
     }
 }
