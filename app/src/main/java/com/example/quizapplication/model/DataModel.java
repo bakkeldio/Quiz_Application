@@ -6,12 +6,11 @@ public class DataModel {
     private int id;
     int image;
 
-    public DataModel(String name, int id, int image){
+    public DataModel(String name, int id, int image) {
         this.name = name;
         this.id = id;
         this.image = image;
     }
-
     public String getName() {
         return name;
     }

@@ -89,7 +89,7 @@ public class ProfileFragment extends Fragment {
         editEmail = view.findViewById(R.id.emailText);
         editPhone = view.findViewById(R.id.phoneText);
         Button changeImage = view.findViewById(R.id.changeImage);
-        avatar = view.findViewById(R.id.photoImageView);
+        avatar = view.findViewById(R.id.photoImageView );
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("images/" + currentUser.getUid());
         Glide.with(this)  // this
                 .load(storageReference)
@@ -214,9 +214,6 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-
     }
 }
 

@@ -9,14 +9,23 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.quizapplication.CustomAdapter;
 import com.example.quizapplication.TestActivity;
 import com.example.quizapplication.model.DataModel;
 import com.example.quizapplication.R;
+import com.example.quizapplication.model.Question;
+import com.example.quizapplication.model.Test;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -25,6 +34,7 @@ public class Quizzes extends Fragment implements CustomAdapter.OnItemListener {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private DatabaseReference database;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -34,7 +44,10 @@ public class Quizzes extends Fragment implements CustomAdapter.OnItemListener {
     private RecyclerView.LayoutManager layoutManager;
 
     private static ArrayList<DataModel> data;
+    ArrayList<Question> questions;
+    ArrayList<String> q;
     private static RecyclerView.Adapter adapter;
+    private static ArrayList<Test> tests = new ArrayList<>();
 
     public Quizzes() {
 
@@ -57,13 +70,16 @@ public class Quizzes extends Fragment implements CustomAdapter.OnItemListener {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        database = FirebaseDatabase.getInstance().getReference().child("tests");
+
+        getData();
+
 
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
     }
 
     @Override
@@ -86,15 +102,46 @@ public class Quizzes extends Fragment implements CustomAdapter.OnItemListener {
         }
         adapter = new CustomAdapter(data, this);
         recyclerView.setAdapter(adapter);
-        recyclerView = view.findViewById(R.id.my_recycler_view);
         return view;
+    }
+    private void getData(){
+        database.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                tests.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Test test = new Test();
+                    test.setName(snapshot.getKey());
+                    test.setTime(Long.parseLong(snapshot.child("Time").getValue().toString()));
+                    questions = new ArrayList<>();
+                    int i = 1;
+                    for (DataSnapshot dataSnapshot1: snapshot.child("Questions").getChildren()){
+                        questions.add(dataSnapshot1.getValue(Question.class));
+                        i++;
+                    }
+                    test.setQuestions(questions);
+                    tests.add(test);
+
+
+                }
+                Toast.makeText(getContext(), "Data successfully added to array",Toast.LENGTH_LONG ).show();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @Override
     public void onItemClick(int position) {
 
         Intent intent = new Intent(getContext(), TestActivity.class);
-        intent.putExtra("Category", data.get(position).getName());
+        intent.putExtra("Questions", tests.get(position));
+        intent.putExtra("TestName", tests.get(position).getName());
+
+
         startActivity(intent);
     }
 }

@@ -24,7 +24,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         OnItemListener onItemListener;
         public MyViewHolder(View itemView, OnItemListener onItemListener){
             super(itemView);
-            this.nameView = itemView.findViewById(R.id.textViewName);
+            this.nameView = itemView.findViewById(R.id.maxScore);
             this.imageView = itemView.findViewById(R.id.image_view);
             this.onItemListener = onItemListener;
 
