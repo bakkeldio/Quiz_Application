@@ -50,28 +50,25 @@ public class Quizzes extends Fragment implements CustomAdapter.OnItemListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TestViewModel viewModel = new ViewModelProvider(getActivity()).get(TestViewModel.class);
-        viewModel.init();
-        tests = viewModel.getTest().getValue();
-        viewModel.getTest().observe(this, new Observer<ArrayList<Test>>() {
-            @Override
-            public void onChanged(ArrayList<Test> newTests) {
-                tests = newTests;
-            }
-        });
+
+
 
     }
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         shareViewModel = new ViewModelProvider(getActivity()).get(ShareViewModel.class);
-        shareViewModel.getTestName().observe(getViewLifecycleOwner(), new Observer<String>() {
+        TestViewModel viewModel = new ViewModelProvider(getActivity()).get(TestViewModel.class);
+        viewModel.init();
+        tests = viewModel.getTest().getValue();
+        viewModel.getTest().observe(getViewLifecycleOwner(), new Observer<ArrayList<Test>>() {
             @Override
-            public void onChanged(String s) {
-
+            public void onChanged(ArrayList<Test> newTests) {
+                tests = newTests;
             }
         });
     }
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -86,7 +83,6 @@ public class Quizzes extends Fragment implements CustomAdapter.OnItemListener {
         View view = inflater.inflate(R.layout.fragment_quizzes, container, false);
         recyclerView = view.findViewById(R.id.my_recycler_view);
                 recyclerView.setHasFixedSize(true);
-
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -106,20 +102,27 @@ public class Quizzes extends Fragment implements CustomAdapter.OnItemListener {
     @Override
     public void onItemClick(int position) {
         shareViewModel.setTestName(tests.get(position).getName());
+        shareViewModel.setTime(tests.get(position).getTime());
 
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("Questions", Context.MODE_PRIVATE);
         Fragment testFragment = new TestFragment();
         Fragment result = new Result();
         Bundle bundle = new Bundle();
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        if (sharedPreferences.getInt("ProgressValue", 0) == tests.get(position).getTime()){
-            fragmentManager.beginTransaction().replace(R.id.content_frame, result).addToBackStack(null).commit();
-            bundle.putString("Points", Integer.toString(sharedPreferences.getInt("Points", 0)));
-            bundle.putString("TestName", tests.get(position).getName());
-            result.setArguments(bundle);
-            Toast.makeText(getContext(), "Time for the test: "+tests.get(position).getTime(), Toast.LENGTH_LONG).show();
+        if (getArguments() !=null) {
+            if (getArguments().getInt("ProgressValue", 0) == tests.get(position).getTime()) {
+                fragmentManager.beginTransaction().replace(R.id.content_frame, result).addToBackStack(null).commit();
+                bundle.putString("Points", Integer.toString(getArguments().getInt("Points", 0)));
+                bundle.putString("TestName", tests.get(position).getName());
+                result.setArguments(bundle);
+                Toast.makeText(getContext(), "Time for the test: " + tests.get(position).getTime(), Toast.LENGTH_LONG).show();
+            }
         }
         else {
+            shareViewModel.setTestName(tests.get(position).getName());
+            SharedPreferences sharedPreferences = getActivity().getSharedPreferences("Position", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putInt("position", position);
+            editor.apply();
             fragmentManager.beginTransaction().replace(R.id.content_frame, testFragment).addToBackStack(null).commit();
         }
 

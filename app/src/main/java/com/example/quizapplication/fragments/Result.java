@@ -48,7 +48,6 @@ public class Result extends Fragment {
     private String testName;
     private String score;
     TextView points;
-    boolean tryB = false;
 
     public Result() {
 
@@ -110,37 +109,12 @@ public class Result extends Fragment {
         final FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         tryButton.setOnClickListener(new View.OnClickListener() {
 
-            TestFragment testFragment = new TestFragment();
             Quizzes quizzes = new Quizzes();
             @Override
             public void onClick(View v) {
-                if (tryB){
-                    fragmentManager.beginTransaction().replace(R.id.content_frame, testFragment).addToBackStack(null).commit();
-                }
-                else {
-                    tryButton.setText("Try");
-                    tryB = true;
-                    fragmentManager.beginTransaction().replace(R.id.content_frame, quizzes).addToBackStack(null).commit();
-                }
+                fragmentManager.beginTransaction().replace(R.id.content_frame, quizzes).addToBackStack(null).commit();
 
             }
         });
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("TestFragment", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean("tryButton", tryB);
-        editor.apply();
-    }
-
-    @Override
-    public void onStart() {
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("TestFragment", Context.MODE_PRIVATE);
-        super.onStart();
-        tryB = sharedPreferences.getBoolean("tryButton", false);
-
     }
 }

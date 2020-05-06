@@ -4,23 +4,57 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class ShareViewModel extends ViewModel {
-    MutableLiveData<String> testName = new MutableLiveData<>();
-    MutableLiveData<Long> time = new MutableLiveData<>();
+import java.net.PasswordAuthentication;
 
-    public void setTestName(String input) {
+public class ShareViewModel extends ViewModel {
+    private MutableLiveData<String> testName;
+    private MutableLiveData<Long> time;
+    private MutableLiveData<String> points;
+    private MutableLiveData<String> passedQuestions;
+    private MutableLiveData<Integer> progress;
+
+    public ShareViewModel(){
+        testName = new MutableLiveData<>();
+        time = new MutableLiveData<>();
+        points = new MutableLiveData<>();
+        passedQuestions = new MutableLiveData<>();
+        progress = new MutableLiveData<>();
+    }
+    void setTestName(String input) {
         testName.setValue(input);
     }
 
-    public LiveData<String> getTestName() {
+    LiveData<String> getTestName() {
         return testName;
     }
 
-    public void setTime(Long input) {
+    void setTime(Long input) {
         time.setValue(input);
     }
 
-    public LiveData<Long> getTime() {
+    LiveData<Long> getTime() {
         return time;
+    }
+    void  setPoint(String point){
+        points.setValue(point);
+    }
+
+    MutableLiveData<String> getPoints() {
+        return points;
+    }
+    void  setPassedQuestions(String string){
+        passedQuestions.setValue(string);
+    }
+
+    MutableLiveData<String> getPassedQuestions() {
+        return passedQuestions;
+    }
+    void setProgress(Integer integer){
+        progress.setValue(integer);
+
+    }
+
+    public MutableLiveData<Integer> getProgress() {
+        return progress;
     }
 }
