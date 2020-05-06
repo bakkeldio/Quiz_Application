@@ -1,10 +1,16 @@
 package com.example.quizapplication.fragments;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,66 +21,56 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+
 import com.example.quizapplication.CustomAdapter;
-import com.example.quizapplication.TestActivity;
+
 import com.example.quizapplication.model.DataModel;
 import com.example.quizapplication.R;
-import com.example.quizapplication.model.Question;
+
 import com.example.quizapplication.model.Test;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
 public class Quizzes extends Fragment implements CustomAdapter.OnItemListener {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    private DatabaseReference database;
+
 
     // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private static RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
 
     private static ArrayList<DataModel> data;
-    ArrayList<Question> questions;
-    ArrayList<String> q;
     private static RecyclerView.Adapter adapter;
-    private static ArrayList<Test> tests = new ArrayList<>();
+    private ArrayList<Test> tests;
+    private ShareViewModel shareViewModel;
 
     public Quizzes() {
-
-    }
-
-    // TODO: Rename and change types and number of parameters
-    public static Quizzes newInstance(String param1, String param2) {
-        Quizzes fragment = new Quizzes();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-        database = FirebaseDatabase.getInstance().getReference().child("tests");
+        TestViewModel viewModel = new ViewModelProvider(getActivity()).get(TestViewModel.class);
+        viewModel.init();
+        tests = viewModel.getTest().getValue();
+        viewModel.getTest().observe(this, new Observer<ArrayList<Test>>() {
+            @Override
+            public void onChanged(ArrayList<Test> newTests) {
+                tests = newTests;
+            }
+        });
 
-        getData();
+    }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        shareViewModel = new ViewModelProvider(getActivity()).get(ShareViewModel.class);
+        shareViewModel.getTestName().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
 
-
+            }
+        });
     }
 
     @Override
@@ -100,48 +96,34 @@ public class Quizzes extends Fragment implements CustomAdapter.OnItemListener {
             data.add(new DataModel(MyData.categories[i], MyData.id[i],MyData.drawableArray[i]));
 
         }
+
         adapter = new CustomAdapter(data, this);
         recyclerView.setAdapter(adapter);
         return view;
     }
-    private void getData(){
-        database.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                tests.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Test test = new Test();
-                    test.setName(snapshot.getKey());
-                    test.setTime(Long.parseLong(snapshot.child("Time").getValue().toString()));
-                    questions = new ArrayList<>();
-                    int i = 1;
-                    for (DataSnapshot dataSnapshot1: snapshot.child("Questions").getChildren()){
-                        questions.add(dataSnapshot1.getValue(Question.class));
-                        i++;
-                    }
-                    test.setQuestions(questions);
-                    tests.add(test);
 
-
-                }
-                Toast.makeText(getContext(), "Data successfully added to array",Toast.LENGTH_LONG ).show();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
 
     @Override
     public void onItemClick(int position) {
+        shareViewModel.setTestName(tests.get(position).getName());
 
-        Intent intent = new Intent(getContext(), TestActivity.class);
-        intent.putExtra("Questions", tests.get(position));
-        intent.putExtra("TestName", tests.get(position).getName());
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("Questions", Context.MODE_PRIVATE);
+        Fragment testFragment = new TestFragment();
+        Fragment result = new Result();
+        Bundle bundle = new Bundle();
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        if (sharedPreferences.getInt("ProgressValue", 0) == tests.get(position).getTime()){
+            fragmentManager.beginTransaction().replace(R.id.content_frame, result).addToBackStack(null).commit();
+            bundle.putString("Points", Integer.toString(sharedPreferences.getInt("Points", 0)));
+            bundle.putString("TestName", tests.get(position).getName());
+            result.setArguments(bundle);
+            Toast.makeText(getContext(), "Time for the test: "+tests.get(position).getTime(), Toast.LENGTH_LONG).show();
+        }
+        else {
+            fragmentManager.beginTransaction().replace(R.id.content_frame, testFragment).addToBackStack(null).commit();
+        }
 
 
-        startActivity(intent);
     }
+
 }

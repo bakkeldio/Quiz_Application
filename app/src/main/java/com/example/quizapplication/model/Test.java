@@ -1,12 +1,12 @@
 package com.example.quizapplication.model;
 
+
 import java.io.Serializable;
 import java.util.ArrayList;
-
 public class Test implements Serializable {
-    String Name;
-    ArrayList<Question> Questions;
-    Long time;
+    private String Name;
+    private ArrayList<Question> Questions;
+    private Long time;
 
     public Test() {
     }
@@ -34,4 +34,5 @@ public class Test implements Serializable {
     public void setQuestions(ArrayList<Question> questions) {
         Questions = questions;
     }
+
 }

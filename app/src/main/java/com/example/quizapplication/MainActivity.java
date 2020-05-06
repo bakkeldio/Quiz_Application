@@ -9,12 +9,16 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.quizapplication.fragments.AboutQuizFragment;
@@ -22,20 +26,28 @@ import com.example.quizapplication.fragments.Logout;
 import com.example.quizapplication.fragments.ProfileFragment;
 import com.example.quizapplication.fragments.Quizzes;
 import com.example.quizapplication.fragments.RankFragment;
+import com.example.quizapplication.fragments.TestFragment;
+import com.example.quizapplication.fragments.TestViewModel;
+import com.example.quizapplication.model.Test;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
+
 
 public class MainActivity extends AppCompatActivity {
-
+    TestFragment testFragment;
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     Toolbar toolbar;
+    public static TextView score;
+    public static Button tryButton, upload;
     ActionBarDrawerToggle toggle;
     public static View.OnClickListener onClickListener;
+
 
 
     @Override
@@ -45,6 +57,10 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout = findViewById(R.id.drawer);
         navigationView = findViewById(R.id.navigationView);
         toolbar = findViewById(R.id.toolbar);
+
+        tryButton = findViewById(R.id.tryButton);
+        upload = findViewById(R.id.upload);
+        score = findViewById(R.id.score);
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -66,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
                 .into(imageView1);
 
         //Profile Fragment
-
     }
 
     @Override

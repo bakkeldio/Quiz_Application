@@ -1,16 +1,15 @@
 package com.example.quizapplication.model;
 
 public class UserRank {
-    private int score;
+    private String score;
     private String username;
-    int image;
 
-    public UserRank(int score, String username) {
+    public UserRank(String score, String username) {
         this.score = score;
         this.username = username;
     }
 
-    public int getScore() {
+    public String getScore() {
         return score;
     }
 

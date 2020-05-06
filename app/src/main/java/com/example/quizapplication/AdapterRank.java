@@ -39,7 +39,7 @@ public class AdapterRank extends RecyclerView.Adapter<AdapterRank.MViewHolder> {
 
     @Override
     public int getItemCount() {
-        return 0;
+        return ranks.size();
     }
 
     public static class MViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
