@@ -3,12 +3,18 @@ package com.example.quizapplication.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 public class Test implements Serializable {
     private String Name;
     private ArrayList<Question> Questions;
+    private HashMap<String, ArrayList<Question>> hashMap;
     private Long time;
 
     public Test() {
+    }
+    public Test(String name){
+        this.Name = name;
     }
 
     public Long getTime() {
@@ -35,4 +41,11 @@ public class Test implements Serializable {
         Questions = questions;
     }
 
+    public HashMap<String, ArrayList<Question>> getHashMap() {
+        return hashMap;
+    }
+
+    public void setHashMap(HashMap<String, ArrayList<Question>> hashMap) {
+        this.hashMap = hashMap;
+    }
 }

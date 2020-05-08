@@ -106,15 +106,5 @@ public class Result extends Fragment {
             }
         });
 
-        final FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        tryButton.setOnClickListener(new View.OnClickListener() {
-
-            Quizzes quizzes = new Quizzes();
-            @Override
-            public void onClick(View v) {
-                fragmentManager.beginTransaction().replace(R.id.content_frame, quizzes).addToBackStack(null).commit();
-
-            }
-        });
     }
 }

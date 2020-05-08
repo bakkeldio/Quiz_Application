@@ -22,12 +22,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.quizapplication.R;
 import com.example.quizapplication.model.Question;
 import com.example.quizapplication.model.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class TestFragment extends Fragment {
@@ -54,23 +56,37 @@ public class TestFragment extends Fragment {
     private FragmentManager fragmentManager;
     private long time;
     private ShareViewModel shareViewModel;
-    TextView topic;
+    private TextView topic;
     private Bundle bundle;
-    String currentQ;String score;String numQuestion;
-    ArrayList<Test> tests;
+    private ArrayList<Test> tests;
+    private String name;
+    private HashMap<String, ArrayList<Question>> hashMap;
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.test_fragment, container, false);
         startButton = view.findViewById(R.id.startButton);
         questionsNum = view.findViewById(R.id.quiestionsNum);
-
+        mViewModel = new ViewModelProvider(getActivity()).get(TestViewModel.class);
+        shareViewModel = new ViewModelProvider(getActivity()).get(ShareViewModel.class);
+        if (getArguments() != null){
+            position = getArguments().getInt("position");
+        }
         tests = mViewModel.getTest().getValue();
-        assert tests != null;
+
+        name = tests.get(position).getName();
+        questions = tests.get(position).getQuestions();
+
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("Position", Context.MODE_PRIVATE);
         time = tests.get(sharedPreferences.getInt("position",0)).getTime();
+
 
         fragmentManager = getActivity().getSupportFragmentManager();
         resultFragment = new Result();
@@ -87,45 +103,69 @@ public class TestFragment extends Fragment {
         currentQuestion = view.findViewById(R.id.currentQuestions);
         progressBar = view.findViewById(R.id.progressBar2);
 
-        shareViewModel.getPoints().observe(getViewLifecycleOwner(), new Observer<String>() {
+        shareViewModel.getPoints().observe(getViewLifecycleOwner(), new Observer<HashMap<String, String>>() {
             @Override
-            public void onChanged(String s) {
-                points.setText(s);
+            public void onChanged(HashMap<String, String> stringStringHashMap) {
+                points.setText(stringStringHashMap.get(name));
             }
         });
-        shareViewModel.getPassedQuestions().observe(getViewLifecycleOwner(), new Observer<String>() {
+        shareViewModel.getPassedQuestions().observe(getViewLifecycleOwner(), new Observer<HashMap<String, String>>() {
             @Override
-            public void onChanged(String s) {
-                currentQuestion.setText(s);
+            public void onChanged(HashMap<String, String> stringStringHashMap) {
+                currentQuestion.setText(stringStringHashMap.get(name));
             }
         });
 
-        shareViewModel.getProgress().observe(getViewLifecycleOwner(), new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer integer) {
-                progressBar.setProgress(integer);
-            }
-        });
-        progress = progressBar.getProgress();
 
         bundle = new Bundle();
 
 
         return view ;
     }
-
-
-
-
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        mViewModel.getTest().observe(getViewLifecycleOwner(), new Observer<ArrayList<Test>>() {
+            @Override
+            public void onChanged(ArrayList<Test> tests1) {
+                questions = tests1.get(position).getQuestions();
+            }
+        });
+
+        q = new ArrayList<>();
+        q.clear();
+        for (int i = 0; i<questions.size(); i++){
+            q.add(questions.get(i).getQuestion());
+        }
+        setQuestion.setText(q.get(0));
+
+
         shareViewModel.getTestName().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String s) {
                 topic.setText(s);
             }
         });
+        if (shareViewModel.getProgress() != null) {
+            shareViewModel.getProgress().observe(getViewLifecycleOwner(), new Observer<HashMap<String, Integer>>() {
+                @Override
+                public void onChanged(HashMap<String, Integer> stringIntegerHashMap) {
+                    try {
+                        progressBar.setProgress(stringIntegerHashMap.get(name));
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+        shareViewModel.getCurrentQuestion().observe(getViewLifecycleOwner(), new Observer<HashMap<String, String>>() {
+            @Override
+            public void onChanged(HashMap<String, String> stringStringHashMap) {
+                setQuestion.setText(stringStringHashMap.get(name));
+            }
+        });
+
+
         if (progressBar.getProgress() == progressBar.getMax()) {
             getChildFragmentManager().beginTransaction().replace(R.id.content_frame, resultFragment).addToBackStack(null).commit();
         }
@@ -144,13 +184,13 @@ public class TestFragment extends Fragment {
                         buttons.get(i).setEnabled(true);
                     }
                     startPressed = true;
-                    if (getArguments() != null){
-                        setQuestion.setText(currentQ);
-                        i = q.indexOf(currentQ);
+                    if (setQuestion.getText() != null){
+
+                        i = q.indexOf(setQuestion.getText().toString());
                     }else {
                         setQuestion.setText(randQuestion);
                     }
-                    countDownTimer = new MyCountDownTimer((timeInt -progress) * 1000, 1000);
+                    countDownTimer = new MyCountDownTimer((timeInt -progressBar.getProgress()) * 1000, 1000);
                     countDownTimer.start();
                     startButton.setEnabled(false);
 
@@ -163,9 +203,9 @@ public class TestFragment extends Fragment {
     private void buttonsClicked(){
         questionsNum.setText(String.valueOf(q.size()));
 
-        if (getArguments() != null){
-            currentQuestions = Integer.parseInt(numQuestion);
-            point = Integer.parseInt(score);
+        if (Integer.parseInt(currentQuestion.getText().toString())>1 || Integer.parseInt(points.getText().toString())>0){
+            currentQuestions = Integer.parseInt(currentQuestion.getText().toString());
+            point = Integer.parseInt(points.getText().toString());
         }
         else {
             currentQuestions = 1;
@@ -340,6 +380,8 @@ public class TestFragment extends Fragment {
 
 
     }
+
+
     private void selectRandomQuestions(){
         randQuestion = q.get(i);
         final int index = q.indexOf(randQuestion);
@@ -383,54 +425,24 @@ public class TestFragment extends Fragment {
         TestFragment testFragment = new TestFragment();
         bundle.putInt("ProgressValue", progressBar.getProgress());
         testFragment.setArguments(bundle);
-        /*
-        bundle.putString("SetQuestion", setQuestion.getText().toString());
-        bundle.putString("Point", points.getText().toString());
-        bundle.putString("CurrentQuestion", currentQuestion.getText().toString());
-        testFragment.setArguments(bundle);
-
-         */
-        shareViewModel.setPassedQuestions(currentQuestion.getText().toString());
-        shareViewModel.setPoint(points.getText().toString());
-        shareViewModel.setProgress(progressBar.getProgress());
-
-
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
-
-
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-
-        mViewModel = new ViewModelProvider(getActivity()).get(TestViewModel.class);
-        shareViewModel = new ViewModelProvider(getActivity()).get(ShareViewModel.class);
-        mViewModel.init();
-        if (getArguments() != null) {
-            position = this.getArguments().getInt("Test", 0);
+        if (progressBar.getProgress() == progressBar.getMax()){
+            shareViewModel.setPoints(name, "0");
+            shareViewModel.setPassedQuestions(name, "1");
+            shareViewModel.setCurrentQuestion(name, q.get(0));
+            shareViewModel.setProgress(name, 0);
         }
-        questions = mViewModel.getTest().getValue().get(position).getQuestions();
-        mViewModel.getTest().observe(this, new Observer<ArrayList<Test>>() {
-            @Override
-            public void onChanged(ArrayList<Test> tests) {
-                questions = tests.get(position).getQuestions();
+        else {
+            if (countDownTimer != null) {
+                countDownTimer.cancel();
             }
-        });
-        q = new ArrayList<>();
-        q.clear();
-        for (int i = 0; i<questions.size(); i++){
-            q.add(questions.get(i).getQuestion());
+            shareViewModel.setProgress(name, progressBar.getProgress());
+            shareViewModel.setPassedQuestions(name, currentQuestion.getText().toString());
+            shareViewModel.setPoints(name, points.getText().toString());
+
+            shareViewModel.setCurrentQuestion(name, setQuestion.getText().toString());
         }
-
-
     }
+
 
 
 }

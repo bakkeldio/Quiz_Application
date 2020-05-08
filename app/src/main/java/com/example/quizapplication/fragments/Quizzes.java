@@ -22,14 +22,22 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 
+import com.example.quizapplication.AdapterRank;
 import com.example.quizapplication.CustomAdapter;
 
 import com.example.quizapplication.model.DataModel;
 import com.example.quizapplication.R;
 
+import com.example.quizapplication.model.Question;
 import com.example.quizapplication.model.Test;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Quizzes extends Fragment implements CustomAdapter.OnItemListener {
 
@@ -38,47 +46,82 @@ public class Quizzes extends Fragment implements CustomAdapter.OnItemListener {
 
     private static RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
-
+    private TestViewModel viewModel;
     private static ArrayList<DataModel> data;
     private static RecyclerView.Adapter adapter;
-    private ArrayList<Test> tests;
+    private HashMap<String, ArrayList<Question>> questionHashMap = new HashMap<>();
+    private ArrayList<Test> tests =new ArrayList<>();
     private ShareViewModel shareViewModel;
+    private ArrayList<Question> questions = new ArrayList<>();
 
+    private DatabaseReference reference;
+    private ArrayList<HashMap<String, ArrayList<Question>>> hashMaps = new ArrayList<>();
     public Quizzes() {
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        reference = FirebaseDatabase.getInstance().getReference().child("tests");
 
+    }
+    private void loadQuestions(){
 
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (tests != null){
+                    tests.clear();
+                }
+                int i = 0;
+                for (DataSnapshot snapshot:dataSnapshot.getChildren()) {
 
+                    Test test = new Test();
+                    test.setName(snapshot.getKey());
+                    test.setTime(Long.parseLong(snapshot.child("Time").getValue().toString()));
+                    for (DataSnapshot dataSnapshot1 : snapshot.child("Questions").getChildren()) {
+                        questions.add(dataSnapshot1.getValue(Question.class));
+                    }
+                    ArrayList<Question> questions1 = new ArrayList<>(questions.subList(i,questions.size()));
+                    //test.setQuestions(questions);
+                    test.setQuestions(questions1);
+                    tests.add(test);
+                    viewModel.setTests(tests);
+                    i = i + questions.size();
+                }
+
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        shareViewModel = new ViewModelProvider(getActivity()).get(ShareViewModel.class);
-        TestViewModel viewModel = new ViewModelProvider(getActivity()).get(TestViewModel.class);
-        viewModel.init();
-        tests = viewModel.getTest().getValue();
         viewModel.getTest().observe(getViewLifecycleOwner(), new Observer<ArrayList<Test>>() {
             @Override
-            public void onChanged(ArrayList<Test> newTests) {
-                tests = newTests;
+            public void onChanged(ArrayList<Test> tests1) {
+                tests = tests1;
             }
         });
+
     }
 
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        shareViewModel =  new ViewModelProvider(getActivity()).get(ShareViewModel.class);
+        viewModel = new ViewModelProvider(getActivity()).get(TestViewModel.class);
+        loadQuestions();
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_quizzes, container, false);
         recyclerView = view.findViewById(R.id.my_recycler_view);
@@ -101,8 +144,8 @@ public class Quizzes extends Fragment implements CustomAdapter.OnItemListener {
 
     @Override
     public void onItemClick(int position) {
-        shareViewModel.setTestName(tests.get(position).getName());
-        shareViewModel.setTime(tests.get(position).getTime());
+        shareViewModel.setTestName(viewModel.getTest().getValue().get(position).getName());
+        shareViewModel.setTime(tests.get(position).getName(),viewModel.getTest().getValue().get(position).getTime());
 
         Fragment testFragment = new TestFragment();
         Fragment result = new Result();
@@ -118,10 +161,14 @@ public class Quizzes extends Fragment implements CustomAdapter.OnItemListener {
             }
         }
         else {
+
             shareViewModel.setTestName(tests.get(position).getName());
+            Bundle bundle1 = new Bundle();
             SharedPreferences sharedPreferences = getActivity().getSharedPreferences("Position", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putInt("position", position);
+            bundle1.putInt("position", position);
+            testFragment.setArguments(bundle1);
             editor.apply();
             fragmentManager.beginTransaction().replace(R.id.content_frame, testFragment).addToBackStack(null).commit();
         }

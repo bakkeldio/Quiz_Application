@@ -14,22 +14,41 @@ import com.example.quizapplication.repository.Repo;
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class TestViewModel extends ViewModel {
     // TODO: Implement the ViewModel
     DatabaseReference databaseReference;
     private MutableLiveData<ArrayList<Test>> tests;
-    void init(){
-        if (tests!= null){
+    private MutableLiveData<ArrayList<Question>> questions;
+    private MutableLiveData<ArrayList<HashMap<String, ArrayList<Question>>>> hashMapMutableLiveData;
+    public TestViewModel(){
+        tests = new MutableLiveData<>();
+        questions = new MutableLiveData<>();
+        hashMapMutableLiveData = new MutableLiveData<>();
+    }
 
-            return;
-        }
-        tests = Repo.getTests();
-
+    void setTests(ArrayList<Test> test) {
+        tests.setValue(test);
     }
 
     MutableLiveData<ArrayList<Test>> getTest(){
         return tests;
+    }
+    void setHashMapMutableLiveData(ArrayList<HashMap<String, ArrayList<Question>>> hashMap){
+        hashMapMutableLiveData.setValue(hashMap);
+    }
+
+    public MutableLiveData<ArrayList<HashMap<String, ArrayList<Question>>>> getHashMapMutableLiveData() {
+        return hashMapMutableLiveData;
+    }
+
+    public void setQuestions(ArrayList<Question> questions1) {
+        questions.setValue(questions1);
+    }
+
+    MutableLiveData<ArrayList<Question>> getQuestions(){
+        return questions;
     }
 
     @Override

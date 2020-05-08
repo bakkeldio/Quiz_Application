@@ -1,17 +1,27 @@
 package com.example.quizapplication.fragments;
 
+import android.support.v4.app.INotificationSideChannel;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import java.net.PasswordAuthentication;
+import java.util.HashMap;
 
 public class ShareViewModel extends ViewModel {
     private MutableLiveData<String> testName;
-    private MutableLiveData<Long> time;
-    private MutableLiveData<String> points;
-    private MutableLiveData<String> passedQuestions;
-    private MutableLiveData<Integer> progress;
+    private MutableLiveData<HashMap<String, Long>> time;
+    private MutableLiveData<HashMap<String, String>> points;
+    private MutableLiveData<HashMap<String, String>> passedQuestions;
+    private MutableLiveData<HashMap<String, Integer>> progress;
+    private MutableLiveData<HashMap<String, String>> currentQuestion;
+    //hashmaps
+    private HashMap<String,String> passedQ = new HashMap<>();
+    private HashMap<String,String> point = new HashMap<>();
+    private HashMap<String, Long> t = new HashMap<>();
+    private HashMap<String, Integer> pros = new HashMap<>();
+    private HashMap<String, String> setQ = new HashMap<>();
 
     public ShareViewModel(){
         testName = new MutableLiveData<>();
@@ -19,6 +29,7 @@ public class ShareViewModel extends ViewModel {
         points = new MutableLiveData<>();
         passedQuestions = new MutableLiveData<>();
         progress = new MutableLiveData<>();
+        currentQuestion = new MutableLiveData<>();
     }
     void setTestName(String input) {
         testName.setValue(input);
@@ -28,33 +39,44 @@ public class ShareViewModel extends ViewModel {
         return testName;
     }
 
-    void setTime(Long input) {
-        time.setValue(input);
+   void setTime(String key, Long tm){
+        t.put(key, tm);
+        time.setValue(t);
+   }
+   void setPoints(String key, String value){
+        point.put(key, value);
+        points.setValue(point);
+   }
+   void setPassedQuestions(String key, String input){
+        passedQ.put(key, input);
+        passedQuestions.setValue(passedQ);
+   }
+   void setProgress(String key, Integer input){
+        pros.put(key, input);
+        progress.setValue(pros);
+   }
+   void setCurrentQuestion(String key, String input){
+        setQ.put(key, input);
+        currentQuestion.setValue(setQ);
     }
 
-    LiveData<Long> getTime() {
+    MutableLiveData<HashMap<String, Integer>> getProgress() {
+        return progress;
+    }
+
+    MutableLiveData<HashMap<String, Long>> getTime() {
         return time;
     }
-    void  setPoint(String point){
-        points.setValue(point);
-    }
 
-    MutableLiveData<String> getPoints() {
-        return points;
-    }
-    void  setPassedQuestions(String string){
-        passedQuestions.setValue(string);
-    }
-
-    MutableLiveData<String> getPassedQuestions() {
+    MutableLiveData<HashMap<String, String>> getPassedQuestions() {
         return passedQuestions;
     }
-    void setProgress(Integer integer){
-        progress.setValue(integer);
 
+    MutableLiveData<HashMap<String, String>> getPoints() {
+        return points;
     }
 
-    public MutableLiveData<Integer> getProgress() {
-        return progress;
+    MutableLiveData<HashMap<String, String>> getCurrentQuestion() {
+        return currentQuestion;
     }
 }
