@@ -1,4 +1,4 @@
-package com.example.quizapplication.fragments;
+package com.example.quizapplication.viewModel;
 
 import android.content.Context;
 
@@ -28,11 +28,11 @@ public class TestViewModel extends ViewModel {
         hashMapMutableLiveData = new MutableLiveData<>();
     }
 
-    void setTests(ArrayList<Test> test) {
+    public void setTests(ArrayList<Test> test) {
         tests.setValue(test);
     }
 
-    MutableLiveData<ArrayList<Test>> getTest(){
+    public MutableLiveData<ArrayList<Test>> getTest(){
         return tests;
     }
     void setHashMapMutableLiveData(ArrayList<HashMap<String, ArrayList<Question>>> hashMap){

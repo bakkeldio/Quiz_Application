@@ -1,26 +1,28 @@
 package com.example.quizapplication.fragments;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import android.widget.Toast;
 
 import com.example.quizapplication.AdapterRank;
 import com.example.quizapplication.R;
+import com.example.quizapplication.model.MyData;
 import com.example.quizapplication.model.UserRank;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.example.quizapplication.viewModel.RankViewModel;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -28,17 +30,19 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
 
 public class RankFragment extends Fragment implements AdapterRank.OnClickListener {
     private RecyclerView recyclerView;
-    RecyclerView.LayoutManager layoutManager;
-    DatabaseReference databaseReference;
-    FirebaseUser currentUser;
-    String getScore;
-    ArrayList<UserRank> data;
-    RecyclerView.Adapter adapter;
-    ArrayList<String> names = new ArrayList<>();
-    ArrayList<String> scores = new ArrayList<>();
+    private RecyclerView.LayoutManager layoutManager;
+    private DatabaseReference databaseReference;
+    private ArrayList<UserRank> data;
+    RankViewModel rankViewModel;
+    private RecyclerView.Adapter adapter;
+    private HashMap<String, String> map = new HashMap<>();
+    private ArrayList<Integer> scores1 = new ArrayList<>();
+    private ArrayList<String> usernames = new ArrayList<>();
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -49,18 +53,12 @@ public class RankFragment extends Fragment implements AdapterRank.OnClickListene
     private String mParam1;
     private String mParam2;
 
+
     public RankFragment() {
     }
 
     // TODO: Rename and change types and number of parameters
-    public static RankFragment newInstance(String param1, String param2) {
-        RankFragment fragment = new RankFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -70,46 +68,70 @@ public class RankFragment extends Fragment implements AdapterRank.OnClickListene
             mParam2 = getArguments().getString(ARG_PARAM2);
 
         }
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyFirstSP", Context.MODE_PRIVATE);
-        String username = sharedPreferences.getString("username", null);
-        String score = sharedPreferences.getString("score", null);
-        names.add(username);
-        scores.add(score);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        databaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUser.getUid());
-
-
+        databaseReference = FirebaseDatabase.getInstance().getReference().child("users");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        rankViewModel = new ViewModelProvider(getActivity()).get(RankViewModel.class);
         View view = inflater.inflate(R.layout.fragment_rank, container, false);
         recyclerView = view.findViewById(R.id.rankRecylerView);
         recyclerView.setHasFixedSize(true);
         Toast.makeText(getContext(), "Rank view is creating ", Toast.LENGTH_LONG).show();
-
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         data = new ArrayList<>();
+        data = new ArrayList<>();
+        for (int i = 0; i< MyData.categories.length; i++){
+            data.add(new UserRank(MyData.categories[i],MyData.drawableArray[i]));
 
-        for (int i = 0; i< names.size();i++){
-            data.add(new UserRank(names.get(i), scores.get(i)));
         }
         adapter = new AdapterRank(data, this);
         recyclerView.setAdapter(adapter);
-        // Inflate the layout for this fragment
+
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                    String username = dataSnapshot1.child("username").getValue().toString();
+                    String score = dataSnapshot1.child("scores").child("Animal").getValue().toString();
+                    if (score.equals("")) {
+                        map.put(username, "0");
+                    } else {
+                        map.put(username, score);
+                    }
+                    usernames.add(username);
+                    rankViewModel.setHashMapMutableLiveData(map);
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+
+
         return view;
     }
 
     @Override
-    public void onItemClick(int position) {
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
+    }
+
+    @Override
+    public void onItemClick(int position) {
+        RankingList rankingList = new RankingList();
+        final String testName = MyData.categories[position];
+
+
+
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, rankingList).addToBackStack(null).commit();
     }
 }

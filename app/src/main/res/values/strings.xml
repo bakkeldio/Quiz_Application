@@ -18,6 +18,21 @@
 
     <string name="home_second">Home Second</string>
 
+
+    <string-array name="tests_names">
+
+        <item>Animals </item>
+        <item>IT</item>
+        <item>Art</item>
+        <item>Business</item>
+        <item>Math</item>
+        <item>Food-Drink</item>
+        <item>Geography</item>
+        <item>History</item>
+
+    </string-array>
+
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

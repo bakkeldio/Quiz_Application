@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.quizapplication.model.UserRank;
@@ -31,10 +32,10 @@ public class AdapterRank extends RecyclerView.Adapter<AdapterRank.MViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull MViewHolder holder, int position) {
-        TextView name = holder.username;
-        TextView score= holder.score;
-        name.setText(ranks.get(position).getUsername());
-        score.setText(ranks.get(position).getScore());
+        TextView name = holder.testName;
+        ImageView image = holder.testImage;
+        name.setText(ranks.get(position).getTestName());
+        image.setImageResource(ranks.get(position).getImage());
     }
 
     @Override
@@ -43,13 +44,13 @@ public class AdapterRank extends RecyclerView.Adapter<AdapterRank.MViewHolder> {
     }
 
     public static class MViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        TextView username;
-        TextView score;
+        TextView testName;
+        ImageView testImage;
         OnClickListener onClickListener;
         public MViewHolder(@NonNull View itemView, OnClickListener onClickListener) {
             super(itemView);
-            this.username = itemView.findViewById(R.id.userName);
-            this.score = itemView.findViewById(R.id.maxScore);
+            this.testName = itemView.findViewById(R.id.testName);
+            this.testImage = itemView.findViewById(R.id.testImage);
             this.onClickListener = onClickListener;
             itemView.setOnClickListener(this);
         }

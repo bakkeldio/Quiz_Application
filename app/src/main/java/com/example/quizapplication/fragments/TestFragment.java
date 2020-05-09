@@ -1,11 +1,9 @@
 package com.example.quizapplication.fragments;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -22,11 +20,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.quizapplication.R;
 import com.example.quizapplication.model.Question;
 import com.example.quizapplication.model.Test;
+import com.example.quizapplication.viewModel.ShareViewModel;
+import com.example.quizapplication.viewModel.TestViewModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -115,7 +114,9 @@ public class TestFragment extends Fragment {
                 currentQuestion.setText(stringStringHashMap.get(name));
             }
         });
-
+        if (questionsNum != null) {
+            questionsNum.setText(String.valueOf(questions.size()));
+        }
 
         bundle = new Bundle();
 
@@ -138,7 +139,6 @@ public class TestFragment extends Fragment {
             q.add(questions.get(i).getQuestion());
         }
         setQuestion.setText(q.get(0));
-
 
         shareViewModel.getTestName().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
@@ -171,7 +171,7 @@ public class TestFragment extends Fragment {
         }
 
 
-        selectRandomQuestions();
+        selectQuestions();
 
         disableButtons();
         startButton.setEnabled(true);
@@ -225,7 +225,7 @@ public class TestFragment extends Fragment {
                     currentQuestions++;
                     currentQuestion.setText(String.valueOf(currentQuestions));
 
-                    selectRandomQuestions();
+                    selectQuestions();
                     setText();
                     setQuestion.setText(randQuestion);
                 }
@@ -233,7 +233,7 @@ public class TestFragment extends Fragment {
                     currentQuestions++;
                     currentQuestion.setText(String.valueOf(currentQuestions));
                     i++;
-                    selectRandomQuestions();
+                    selectQuestions();
                     setText();
                     setQuestion.setText(randQuestion);
                 }
@@ -252,7 +252,7 @@ public class TestFragment extends Fragment {
                     currentQuestions++;
                     currentQuestion.setText(String.valueOf(currentQuestions));
 
-                    selectRandomQuestions();
+                    selectQuestions();
                     setText();
                     setQuestion.setText(randQuestion);
                 }
@@ -260,7 +260,7 @@ public class TestFragment extends Fragment {
                     currentQuestions++;
                     currentQuestion.setText(String.valueOf(currentQuestions));
                     i++;
-                    selectRandomQuestions();
+                    selectQuestions();
                     setText();
                     setQuestion.setText(randQuestion);
                 }
@@ -279,7 +279,7 @@ public class TestFragment extends Fragment {
                     currentQuestions++;
                     currentQuestion.setText(String.valueOf(currentQuestions));
 
-                    selectRandomQuestions();
+                    selectQuestions();
                     setText();
                     setQuestion.setText(randQuestion);
                 }
@@ -287,7 +287,7 @@ public class TestFragment extends Fragment {
                     currentQuestions++;
                     currentQuestion.setText(String.valueOf(currentQuestions));
                     i++;
-                    selectRandomQuestions();
+                    selectQuestions();
                     setText();
                     setQuestion.setText(randQuestion);
                 }
@@ -307,7 +307,7 @@ public class TestFragment extends Fragment {
                     currentQuestions++;
                     currentQuestion.setText(String.valueOf(currentQuestions));
 
-                    selectRandomQuestions();
+                    selectQuestions();
                     setText();
                     setQuestion.setText(randQuestion);
                 }
@@ -315,7 +315,7 @@ public class TestFragment extends Fragment {
                     currentQuestions++;
                     currentQuestion.setText(String.valueOf(currentQuestions));
                     i++;
-                    selectRandomQuestions();
+                    selectQuestions();
                     setText();
                     setQuestion.setText(randQuestion);
                 }
@@ -359,6 +359,7 @@ public class TestFragment extends Fragment {
             Quizzes quizzes = new Quizzes();
 
             onFinishBundle.putString("Points", String.valueOf(point));
+            onFinishBundle.putString("TestName", name);
             onFinishBundle.putString("ProgressValue", String.valueOf(progressBar.getProgress()));
             resultFragment.setArguments(onFinishBundle);
             quizzes.setArguments(onFinishBundle);
@@ -371,6 +372,7 @@ public class TestFragment extends Fragment {
             Bundle questionEndBundle = new Bundle();
             Quizzes quizzes = new Quizzes();
             questionEndBundle.putString("Points", String.valueOf(point));
+            questionEndBundle.putString("TestName",name);
 
             resultFragment.setArguments(questionEndBundle);
             quizzes.setArguments(questionEndBundle);
@@ -382,7 +384,7 @@ public class TestFragment extends Fragment {
     }
 
 
-    private void selectRandomQuestions(){
+    private void selectQuestions(){
         randQuestion = q.get(i);
         final int index = q.indexOf(randQuestion);
         Question question = questions.get(index);

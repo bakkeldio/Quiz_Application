@@ -1,6 +1,5 @@
 package com.example.quizapplication.fragments;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -10,26 +9,26 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 
-import com.example.quizapplication.AdapterRank;
 import com.example.quizapplication.CustomAdapter;
 
 import com.example.quizapplication.model.DataModel;
 import com.example.quizapplication.R;
 
+import com.example.quizapplication.model.MyData;
 import com.example.quizapplication.model.Question;
 import com.example.quizapplication.model.Test;
+import com.example.quizapplication.viewModel.ShareViewModel;
+import com.example.quizapplication.viewModel.TestViewModel;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -131,7 +130,7 @@ public class Quizzes extends Fragment implements CustomAdapter.OnItemListener {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         data = new ArrayList<DataModel>();
-        for (int i=0; i<MyData.categories.length; i++){
+        for (int i = 0; i< MyData.categories.length; i++){
             data.add(new DataModel(MyData.categories[i], MyData.id[i],MyData.drawableArray[i]));
 
         }
@@ -149,10 +148,11 @@ public class Quizzes extends Fragment implements CustomAdapter.OnItemListener {
 
         Fragment testFragment = new TestFragment();
         Fragment result = new Result();
-        Bundle bundle = new Bundle();
+
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         if (getArguments() !=null) {
             if (getArguments().getInt("ProgressValue", 0) == tests.get(position).getTime()) {
+                Bundle bundle = new Bundle();
                 fragmentManager.beginTransaction().replace(R.id.content_frame, result).addToBackStack(null).commit();
                 bundle.putString("Points", Integer.toString(getArguments().getInt("Points", 0)));
                 bundle.putString("TestName", tests.get(position).getName());

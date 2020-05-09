@@ -8,11 +8,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,15 +23,11 @@ import com.example.quizapplication.fragments.ProfileFragment;
 import com.example.quizapplication.fragments.Quizzes;
 import com.example.quizapplication.fragments.RankFragment;
 import com.example.quizapplication.fragments.TestFragment;
-import com.example.quizapplication.fragments.TestViewModel;
-import com.example.quizapplication.model.Test;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-
-import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
