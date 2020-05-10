@@ -5,5 +5,4 @@ According to your scores you will take place in the ranking list. Ranking is don
         of the May. New release will have Artificial Intelligence.
 
 
-## The aim of this application is to improve learning by passing the tests.
 
