@@ -21,10 +21,12 @@ import android.widget.Toast;
 
 import com.example.quizapplication.CustomAdapter;
 
+import com.example.quizapplication.CustomDialog;
+import com.example.quizapplication.LoginActivity;
+import com.example.quizapplication.MainActivity;
 import com.example.quizapplication.model.DataModel;
 import com.example.quizapplication.R;
 
-import com.example.quizapplication.model.MyData;
 import com.example.quizapplication.model.Question;
 import com.example.quizapplication.model.Test;
 import com.example.quizapplication.viewModel.ShareViewModel;
@@ -143,37 +145,41 @@ public class Quizzes extends Fragment implements CustomAdapter.OnItemListener {
 
     @Override
     public void onItemClick(int position) {
-        shareViewModel.setTestName(viewModel.getTest().getValue().get(position).getName());
-        shareViewModel.setTime(tests.get(position).getName(),viewModel.getTest().getValue().get(position).getTime());
+        if  (position>=tests.size()){
+            CustomDialog cdd=new CustomDialog(getActivity());
+            cdd.show();
+        } else {
+            shareViewModel.setTestName(viewModel.getTest().getValue().get(position).getName());
+            shareViewModel.setTime(tests.get(position).getName(), viewModel.getTest().getValue().get(position).getTime());
 
-        Fragment testFragment = new TestFragment();
-        Fragment result = new Result();
+            Fragment testFragment = new TestFragment();
+            Fragment result = new Result();
 
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        if (getArguments() !=null) {
-            if (getArguments().getInt("ProgressValue", 0) == tests.get(position).getTime()) {
-                Bundle bundle = new Bundle();
-                fragmentManager.beginTransaction().replace(R.id.content_frame, result).addToBackStack(null).commit();
-                bundle.putString("Points", Integer.toString(getArguments().getInt("Points", 0)));
-                bundle.putString("TestName", tests.get(position).getName());
-                result.setArguments(bundle);
-                Toast.makeText(getContext(), "Time for the test: " + tests.get(position).getTime(), Toast.LENGTH_LONG).show();
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+            if (getArguments() != null) {
+                if (getArguments().getInt("ProgressValue", 0) == tests.get(position).getTime()) {
+                    Bundle bundle = new Bundle();
+                    fragmentManager.beginTransaction().replace(R.id.content_frame, result).addToBackStack(null).commit();
+                    bundle.putString("Points", Integer.toString(getArguments().getInt("Points", 0)));
+                    bundle.putString("TestName", tests.get(position).getName());
+                    result.setArguments(bundle);
+                    Toast.makeText(getContext(), "Time for the test: " + tests.get(position).getTime(), Toast.LENGTH_LONG).show();
+                }
+            } else {
+
+                shareViewModel.setTestName(tests.get(position).getName());
+                Bundle bundle1 = new Bundle();
+                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("Position", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putInt("position", position);
+                bundle1.putInt("position", position);
+                testFragment.setArguments(bundle1);
+                editor.apply();
+                fragmentManager.beginTransaction().replace(R.id.content_frame, testFragment).addToBackStack(null).commit();
             }
+
+
         }
-        else {
-
-            shareViewModel.setTestName(tests.get(position).getName());
-            Bundle bundle1 = new Bundle();
-            SharedPreferences sharedPreferences = getActivity().getSharedPreferences("Position", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putInt("position", position);
-            bundle1.putInt("position", position);
-            testFragment.setArguments(bundle1);
-            editor.apply();
-            fragmentManager.beginTransaction().replace(R.id.content_frame, testFragment).addToBackStack(null).commit();
-        }
-
-
     }
 
 }

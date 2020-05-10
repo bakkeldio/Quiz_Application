@@ -14,6 +14,15 @@
     <string name="welcomProfile">Welcome to profile!</string>
     <string name="alert_dialog_ok">Yes</string>
     <string name="alert_dialog_cancel">No</string>
+    <string name="about_quiz">
+        Hello, my dear users!
+        This is quiz application, which will take tests. There are different types of tests.
+        You can choose one of them and try to finish on time.
+        The aim of this application is to upgrade the learning by passing the tests.
+        According to your scores you will take place in the ranking list. Ranking is done for every
+        test separately.Enjoy my application. New release of this application will be published by the end
+        of the May. New release will have Artificial Intelligence.
+    </string>
 
 
     <string name="home_second">Home Second</string>

@@ -4,22 +4,27 @@
 
     <item
         android:id="@+id/Profile"
+        android:icon="@drawable/ic_account_circle"
         android:title="Edit Profile"
         />
     <item
         android:id="@+id/aboutUs"
+        android:icon="@drawable/ic_about_us"
         android:title="About us"/>
 
     <item
         android:id="@+id/Rank"
+        android:icon="@drawable/ic_star_black_24dp"
         android:title="Ranking"
         />
     <item
         android:id="@+id/Quizzes"
+        android:icon="@drawable/ic_quizzes"
         android:title="Quizzes"/>
 
     <item
         android:id="@+id/yesButton"
+        android:icon="@drawable/ic_logout"
         android:title="Logout"
         />
 

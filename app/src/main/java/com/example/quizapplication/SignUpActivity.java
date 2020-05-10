@@ -9,7 +9,9 @@ import android.os.PersistableBundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -27,6 +29,8 @@ public class SignUpActivity extends AppCompatActivity {
     ProgressBar progressBar;
     boolean userActive;
     FirebaseUser user;
+    ImageView imageView;
+    TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +39,9 @@ public class SignUpActivity extends AppCompatActivity {
         signUp = findViewById(R.id.signUp);
         login = findViewById(R.id.loginButton);
         email = findViewById(R.id.emailText);
+        imageView = findViewById(R.id.imageView2);
+        textView = findViewById(R.id.UpGrade);
+
         password = findViewById(R.id.passwordText);
         progressBar = findViewById(R.id.progressBarSignUp);
         user = FirebaseAuth.getInstance().getCurrentUser();

@@ -1,4 +1,4 @@
-package com.example.quizapplication.model;
+package com.example.quizapplication.fragments;
 
 import com.example.quizapplication.R;
 

@@ -20,7 +20,6 @@ import android.widget.Toast;
 
 import com.example.quizapplication.AdapterRank;
 import com.example.quizapplication.R;
-import com.example.quizapplication.model.MyData;
 import com.example.quizapplication.model.UserRank;
 import com.example.quizapplication.viewModel.RankViewModel;
 import com.google.firebase.database.DataSnapshot;
@@ -40,6 +39,7 @@ public class RankFragment extends Fragment implements AdapterRank.OnClickListene
     private ArrayList<UserRank> data;
     RankViewModel rankViewModel;
     private RecyclerView.Adapter adapter;
+    private boolean retrieveFromDB = true;
     private HashMap<String, String> map = new HashMap<>();
     private ArrayList<Integer> scores1 = new ArrayList<>();
     private ArrayList<String> usernames = new ArrayList<>();
@@ -48,6 +48,7 @@ public class RankFragment extends Fragment implements AdapterRank.OnClickListene
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private String testName;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -78,6 +79,7 @@ public class RankFragment extends Fragment implements AdapterRank.OnClickListene
         View view = inflater.inflate(R.layout.fragment_rank, container, false);
         recyclerView = view.findViewById(R.id.rankRecylerView);
         recyclerView.setHasFixedSize(true);
+
         Toast.makeText(getContext(), "Rank view is creating ", Toast.LENGTH_LONG).show();
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
@@ -91,28 +93,6 @@ public class RankFragment extends Fragment implements AdapterRank.OnClickListene
         adapter = new AdapterRank(data, this);
         recyclerView.setAdapter(adapter);
 
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
-                    String username = dataSnapshot1.child("username").getValue().toString();
-                    String score = dataSnapshot1.child("scores").child("Animal").getValue().toString();
-                    if (score.equals("")) {
-                        map.put(username, "0");
-                    } else {
-                        map.put(username, score);
-                    }
-                    usernames.add(username);
-                    rankViewModel.setHashMapMutableLiveData(map);
-
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        });
 
 
         return view;
@@ -126,12 +106,34 @@ public class RankFragment extends Fragment implements AdapterRank.OnClickListene
 
     @Override
     public void onItemClick(int position) {
-        RankingList rankingList = new RankingList();
-        final String testName = MyData.categories[position];
+            testName = MyData.categories[position];
+            databaseReference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                        String username = dataSnapshot1.child("username").getValue().toString();
+                        String score = dataSnapshot1.child("scores").child(testName).getValue().toString();
+                        if (score.equals("")) {
+                            map.put(username, "0");
+                        } else {
+                            map.put(username, score);
+                        }
+                        usernames.add(username);
+                        rankViewModel.setHashMapMutableLiveData(map);
+                        rankViewModel.setUsernameMutableList(usernames);
 
+                    }
+                    RankingList rankingList = new RankingList();
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    fragmentManager.beginTransaction().replace(R.id.content_frame, rankingList).addToBackStack(null).commit();
+                }
 
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                }
+            });
 
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, rankingList).addToBackStack(null).commit();
     }
+
+
 }
