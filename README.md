@@ -1,5 +1,5 @@
 # UpQuiz application
-**UpQuiz application is an app for taking the tests from the users.
+**UpQuiz application is an app for taking the tests from the users.**
 
 
 
